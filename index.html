@@ -45,6 +45,7 @@
       background: rgba(0, 0, 0, 0.85);
       position: relative;
       z-index: 2;
+      line-height: 1.6;
     }
 
     .cursor {
@@ -63,11 +64,44 @@
   </style>
 </head>
 <body>
-  <div class="terminal">
-    <p>> hello, my name is <strong>Oxy</strong></p>
-    <p>> i like owning things (websites)</p>
-    <p>> and messing around with stuff...</p>
-    <p>> end of file<span class="cursor"></span></p>
+  <div class="terminal" id="terminal">
+    <!-- Typed text will go here -->
+    <span class="cursor" id="cursor"></span>
   </div>
+
+  <script>
+    const lines = [
+      "> hello, my name is Oxy",
+      "> i like owning things (websites)",
+      "> and messing around with stuff...",
+      "> end of file"
+    ];
+
+    const terminal = document.getElementById("terminal");
+    const cursor = document.getElementById("cursor");
+
+    let lineIndex = 0;
+    let charIndex = 0;
+
+    function typeLine() {
+      if (lineIndex < lines.length) {
+        let currentLine = lines[lineIndex];
+        
+        if (charIndex < currentLine.length) {
+          cursor.insertAdjacentText("beforebegin", currentLine.charAt(charIndex));
+          charIndex++;
+          setTimeout(typeLine, 50); // typing speed
+        } else {
+          // new line
+          cursor.insertAdjacentHTML("beforebegin", "<br>");
+          lineIndex++;
+          charIndex = 0;
+          setTimeout(typeLine, 400); // pause between lines
+        }
+      }
+    }
+
+    typeLine();
+  </script>
 </body>
 </html>
