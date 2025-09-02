@@ -52,6 +52,7 @@
       line-height: 1.5;
       font-size: 1.2rem;
       white-space: pre-line;
+      display: none;
     }
 
     .cursor {
@@ -63,6 +64,16 @@
 
     @keyframes blink {
       50% { background: transparent; }
+    }
+
+    /* Boot screen */
+    #boot {
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.5;
+      font-size: 1.1rem;
+      white-space: pre-line;
     }
 
     /* Overlay menu */
@@ -102,6 +113,10 @@
   </style>
 </head>
 <body>
+  <!-- Boot screen -->
+  <div id="boot"></div>
+
+  <!-- Main terminal -->
   <div class="terminal" id="terminal">
     <span id="typed"></span><span class="cursor"></span>
   </div>
@@ -120,14 +135,25 @@
 
   <div class="hint">press M to view my other sites</div>
 
-  <!-- Typing + Sounds -->
+  <!-- Typing + Boot Logic -->
   <script>
-    const lines = [
+    const bootLines = [
+      "oxyOS v1.0 initializing...",
+      "loading kernel... OK",
+      "detecting personality modules... OK",
+      "mounting websites... OK",
+      "boot sequence complete.",
+      "",
+      "launching terminal..."
+    ];
+
+    const mainLines = [
       "> hello, my name is oxy",
       "> i like owning things (websites)",
       "> and messing around with stuff...",
       "> end of file"
     ];
+
     const typingSpeed = 50; // ms per character
     const lineDelay = 400;  // ms between lines
     const soundUrls = [
@@ -135,8 +161,9 @@
       "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
     ];
 
+    const bootDiv = document.getElementById("boot");
+    const terminalDiv = document.getElementById("terminal");
     const terminal = document.getElementById("typed");
-    let lineIndex = 0;
 
     function playKeySound() {
       const audio = new Audio(soundUrls[Math.floor(Math.random() * soundUrls.length)]);
@@ -144,30 +171,43 @@
       audio.play();
     }
 
-    function typeLine(line, callback) {
+    function typeLine(line, container, callback) {
       let i = 0;
       const interval = setInterval(() => {
-        terminal.textContent += line[i];
+        container.textContent += line[i];
         playKeySound();
         i++;
         if (i >= line.length) {
           clearInterval(interval);
-          terminal.textContent += "\n";
+          container.textContent += "\n";
           setTimeout(callback, lineDelay);
         }
       }, typingSpeed);
     }
 
-    function startTyping() {
-      if (lineIndex < lines.length) {
-        typeLine(lines[lineIndex], () => {
-          lineIndex++;
-          startTyping();
-        });
+    function startTyping(lines, container, done) {
+      let index = 0;
+      function nextLine() {
+        if (index < lines.length) {
+          typeLine(lines[index], container, () => {
+            index++;
+            nextLine();
+          });
+        } else {
+          done();
+        }
       }
+      nextLine();
     }
 
-    startTyping();
+    // Boot first, then show main terminal
+    startTyping(bootLines, bootDiv, () => {
+      setTimeout(() => {
+        bootDiv.style.display = "none";
+        terminalDiv.style.display = "block";
+        startTyping(mainLines, terminal, () => {});
+      }, 1000);
+    });
 
     // Overlay toggle
     const overlay = document.getElementById("overlay");
