@@ -1,171 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>oxy's terminal</title>
-  <meta name="theme-color" content="#000000" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>oxy</title>
 
-  <!-- Icons -->
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="64x64" href="/oxy-favicon.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="oxy-favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-  <!-- Open Graph (Discord, etc.) -->
-  <meta property="og:title" content="oxy's terminal" />
-  <meta property="og:description" content="just messing around, owning things (websites)" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://discord.typicalcolors.com" />
-  <meta property="og:image" content="https://discord.typicalcolors.com/oxy-embed.png" />
+  <!-- Open Graph / Discord Embed -->
+  <meta property="og:title" content="oxy">
+  <meta property="og:description" content="a lil retro about me page">
+  <meta property="og:image" content="https://discord.typicalcolors.com/oxy-embed.png">
+  <meta property="og:url" content="https://discord.typicalcolors.com">
+  <meta property="og:type" content="website">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="oxy's terminal" />
-  <meta name="twitter:description" content="just messing around, owning things (websites)" />
-  <meta name="twitter:image" content="https://discord.typicalcolors.com/oxy-embed.png" />
-
+  <!-- Style -->
   <style>
-    /* Base */
-    html, body {
-      height: 100%;
-    }
     body {
       margin: 0;
-      background: #000;
-      color: #00ff66;
-      font-family: "Courier New", Courier, monospace;
-      font-size: 1.15rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
+      height: 100vh;
+      font-family: "Courier New", monospace;
+      color: #00ff99;
+      background: black;
+      overflow-x: hidden;
+      cursor: url('https://cur.cursors-4u.net/cursors/cur-2/cur116.cur'), auto;
     }
 
-    /* CRT scanlines + subtle glow */
+    /* CRT scanlines */
     body::before {
       content: "";
       position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at center,
-          rgba(0,255,102,0.08) 0%,
-          rgba(0,0,0,0) 60%),
-        repeating-linear-gradient(
-          to bottom,
-          rgba(0,0,0,0) 0px,
-          rgba(0,0,0,0) 2px,
-          rgba(0,255,102,0.06) 3px
-        );
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 153, 0.03) 0px,
+        rgba(0, 255, 153, 0.03) 2px,
+        transparent 2px,
+        transparent 4px
+      );
       pointer-events: none;
-      mix-blend-mode: screen;
+      z-index: 5;
     }
 
-    /* Terminal window */
     .terminal {
-      width: min(720px, 90vw);
-      padding: 22px 24px;
-      border: 2px solid #00ff66;
-      background: rgba(0,0,0,0.88);
-      box-shadow: 0 0 24px rgba(0,255,102,0.55), inset 0 0 12px rgba(0,255,102,0.15);
-      line-height: 1.55;
-      white-space: pre-wrap;
-      opacity: 0; /* revealed after boot flicker */
-      position: relative;
-      z-index: 2;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.5;
+      font-size: 1.2rem;
+      white-space: pre-line;
     }
 
-    /* Cursor */
     .cursor {
       display: inline-block;
       width: 10px;
-      height: 1em;
-      background: #00ff66;
-      margin-left: 4px;
-      animation: blink 1s steps(1) infinite;
-      vertical-align: -2px;
+      background: #00ff99;
+      animation: blink 1s step-start infinite;
     }
+
     @keyframes blink {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
+      50% { background: transparent; }
     }
 
-    /* Boot flicker overlay */
-    .flicker {
+    /* Overlay menu */
+    #overlay {
       position: fixed;
-      inset: 0;
-      background: #000;
-      z-index: 999;
-      animation: flicker 2s linear forwards;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      color: #00ff99;
+      font-family: "Courier New", monospace;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
     }
-    @keyframes flicker {
-      0%   { opacity: 1; }
-      8%   { opacity: 0; }
-      16%  { opacity: 1; }
-      24%  { opacity: 0; }
-      36%  { opacity: 1; }
-      55%  { opacity: .7; }
-      75%  { opacity: .35; }
-      100% { opacity: 0; visibility: hidden; }
+    #overlay h2 {
+      margin-bottom: 20px;
+    }
+    #overlay a {
+      display: block;
+      margin: 8px 0;
+      text-decoration: none;
+      color: #00ff99;
+    }
+    #overlay a:hover {
+      text-decoration: underline;
     }
 
-    /* Subtle vignette */
-    .vignette {
+    .hint {
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at center, rgba(0,0,0,0) 60%, rgba(0,0,0,.6) 100%);
-      z-index: 1;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.8rem;
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
-  <!-- boot overlay -->
-  <div class="flicker" aria-hidden="true"></div>
-  <div class="vignette" aria-hidden="true"></div>
-
   <div class="terminal" id="terminal">
-    <span class="cursor" id="cursor"></span>
+    > hello, my name is oxy<br>
+    > i like owning things (websites)<br>
+    > and messing around with stuff...<br>
+    > end of file <span class="cursor"></span>
   </div>
 
+  <!-- Overlay -->
+  <div id="overlay">
+    <h2>my sites</h2>
+    <a href="https://dorcus.digital" target="_blank">dorcus.digital</a>
+    <a href="https://typicalcolours2.com" target="_blank">typicalcolours2.com</a>
+    <a href="https://flankersucks.com" target="_blank">flankersucks.com</a>
+    <a href="https://downy.press" target="_blank">downy.press</a>
+    <a href="https://addgunslingerremodel.com" target="_blank">addgunslingerremodel.com</a>
+    <a href="https://iwilleatcorndogs.today" target="_blank">iwilleatcorndogs.today</a>
+    <p>[ press ESC to close ]</p>
+  </div>
+
+  <div class="hint">press M to view my other sites</div>
+
   <script>
-    // Lines to type
-    const lines = [
-      "> hello, my name is oxy",
-      "> i like owning things (websites)",
-      "> and messing around with stuff...",
-      "> websites are p cool :)",
-      "> end of file"
-    ];
-
-    const terminal = document.getElementById("terminal");
-    const cursor = document.getElementById("cursor");
-
-    let lineIndex = 0;
-    let charIndex = 0;
-
-    // Start typing after flicker completes
-    setTimeout(() => {
-      terminal.style.opacity = 1;
-      typeLine();
-    }, 2000);
-
-    function typeLine() {
-      if (lineIndex >= lines.length) return;
-
-      const current = lines[lineIndex];
-
-      if (charIndex < current.length) {
-        cursor.insertAdjacentText("beforebegin", current.charAt(charIndex));
-        charIndex++;
-        setTimeout(typeLine, 48); // typing speed
-      } else {
-        cursor.insertAdjacentHTML("beforebegin", "<br>");
-        lineIndex++;
-        charIndex = 0;
-        setTimeout(typeLine, 380); // pause between lines
+    // Overlay toggle
+    const overlay = document.getElementById("overlay");
+    document.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "m") {
+        overlay.style.display = "flex";
       }
-    }
+      if (e.key === "Escape") {
+        overlay.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>
